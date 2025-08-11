@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>סיפורי סבתא טובה</title>
+<style>
+  :root {
+    --bg: #f8f5f1;
+    --paper: #fffdf8;
+    --ink: #1f1f1f;
+    --accent: #d35454;
+    --spine: #e9e2d8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Arial, sans-serif;
+    line-height: 1.7;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(to bottom, rgba(248,245,241,0.95), rgba(248,245,241,0.75));
+    backdrop-filter: blur(6px);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e2d9cc;
+    z-index: 10;
+  }
+  header h1 {
+    margin: 0;
+    font-size: clamp(22px, 4vw, 32px);
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    font-weight: 800;
+  }
+  .nav {
+    display: flex;
+    gap: 12px;
+  }
+  button.nav-btn {
+    border: 0;
+    background: #1f1f1f;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  button.nav-btn[disabled] {
+    opacity: .4; cursor: not-allowed;
+  }
+
+  main {
+    display: grid;
+    place-items: center;
+    padding: 22px 12px 48px;
+  }
+
+  .spread {
+    width: min(1100px, 96vw);
+    min-height: min(720px, 72vh);
+    background: var(--paper);
+    border-radius: 18px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    display: flex; /* Use flexbox for easier side-by-side layout */
+    overflow: hidden;
+    perspective: 1500px;
+  }
+  
+  .left-page,
+  .right-page {
+    width: 50%; /* Each page takes up half the spread */
+    height: 100%; /* Each page fills the full height */
+    position: relative; /* For spine and content */
+    background: var(--paper);
+    overflow: hidden; /* To handle content without overflow */
+  }
+
+  .left-page {
+    /* Styles specific to the left page */
+    border-radius: 18px 0 0 18px;
+  }
+
+  .right-page {
+    /* Styles specific to the right page */
+    border-radius: 0 18px 18px 0;
+  }
+
+  .page-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+  
+  .page-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    backface-visibility: hidden;
+    background: var(--paper);
+    border-radius: 18px;
+    transition: transform 0.8s ease-in-out;
+    display: flex;
+  }
+
+  .spread.flipping-next .page-content {
+    transform: rotateY(-180deg);
+  }
+
+  .spread.flipping-prev .page-content {
+    transform: rotateY(180deg);
+  }
+
+  .spine {
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    width: 2px; background: var(--spine);
+    transform: translateX(-50%);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.03) inset;
+    z-index: 1;
+  }
+
+  .page-image-container {
+    background: #eef2f7;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    width: 100%;
+    height: 100%;
+  }
+  .page-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  
+  .page-text-container {
+    padding: 28px 32px 28px 28px;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+  }
+  .page-text-container h2 {
+    margin: 0 0 8px;
+    font-size: clamp(22px, 3.2vw, 28px);
+    color: #333;
+  }
+  .page-text-container p {
+    margin: 10px 0;
+    font-size: clamp(16px, 2.2vw, 18px);
+    white-space: pre-wrap;
+  }
+
+  /* Cover mode - right side only */
+  .cover .spread {
+    display: flex;
+  }
+  
+  .cover .left-page { 
+    background: var(--bg);
+  }
+  
+  .cover .right-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    text-align: center;
+  }
+  
+  .cover .cover-image {
+    width: 80%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  
+  .cover .page-text-container h2 {
+    font-size: clamp(28px, 6vw, 48px);
+    color: var(--accent);
+    margin: 0;
+  }
+  
+  .cover .page-text-container p {
+    display: none;
+  }
+
+  footer {
+    text-align: center;
+    color: #948b7f;
+    font-size: 13px;
+    margin: 10px 0 24px;
+  }
+
+  @media (max-width: 900px) {
+    .spread {
+      flex-direction: column;
+    }
+    .left-page, .right-page {
+      width: 100%;
+      height: auto;
+      border-radius: 0;
+    }
+    .spine { display: none; }
+    .page-image-container img {
+      border-radius: 0;
+      height: 340px;
+      object-fit: contain;
+      background: #fff;
+    }
+    
+    /* Mobile cover adjustments */
+    .cover .spread {
+      flex-direction: column;
+    }
+    .cover .left-page {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>סיפורי סבתא טובה</h1>
+    <div class="nav">
+      <button id="prev" class="nav-btn">⬅︎ אחורה</button>
+      <button id="next" class="nav-btn">קדימה ➤</button>
+    </div>
+  </header>
+
+  <main id="book"></main>
+  <footer>גרסת דפדוף — תמונה משמאל, טקסט מימין, RTL.</footer>
+
+<script>
+  const PAGES = [{'id': 'cover', 'title': 'סיפורי סבתא טובה', 'image': '0.png', 'text': ''}, {'id': 'opening', 'title': 'פתיחה', 'image': '1.png', 'text': 'שלום ילדים!\n\nהכירו את סבתא טובה שלנו — מצחיקה, שובבה, מלאה רעיונות… והרבה פעמים גם שוכחת דברים.\nכל סיפור בספר הזה הוא אמיתי (או כמעט אמיתי), וקרה באמת — לפחות ככה סבתא אומרת…\n\nבואו תיכנסו לעולם של סבתא — ותכינו את עצמכם לצחוק!'}, {'id': 'market-parking', 'title': 'חניה בסופר', 'image': '2.png', 'text': 'יום אחד, סבתא נסעה לסופר הגדול כי נגמרו לה הירקות.\nהיא חנתה בחניון, קנתה מצרכים — וחזרה הביתה ברגל!\n\nלמחרת בבוקר, כשיצאה מהבית, סבתא נבהלה: האוטו לא היה בחניה!\n"גנבו לי את האוטו!" היא צעקה, והתקשרה למשטרה, לחברת הביטוח — ואפילו לחנות מכוניות להזמין רכב חדש.\n\nכעבור שבוע, היא שוב נסעה לסופר — ופתאום ראתה את האוטו שלה חונה בדיוק איפה שעזבה אותו!\nאז מה קרה? סבתא פשוט שכחה שלקחה את המצרכים ברגל… והשכיחה את האוטו בחניון!'}, {'id': 'mall-abroad', 'title': 'קניון בחו"ל', 'image': '3.png', 'text': 'סבתא נסעה עם אמא ואבא לטיול בחו"ל.\nביום האחרון, היא פתאום נזכרה: "לא קניתי כלום! חייבים ללכת לקניון!"\n\nאז כולם נסעו לקניון, וסבתא התחילה לקנות… ולקנות… ולקנות…\n\nברמקול כבר הכריזו שהקניון נסגר, אבל סבתא? המשיכה לקנות!\nאחרי ששילמה, הם גילו שאין מקום לשבת באוטו — כי כל האוטו היה מלא בשקיות!\n\nאז סבתא פתחה את החלונות, ואמא ואבא נסעו עם רגליים בחוץ.\nכשחזרו לארץ, סבתא פתחה את המזוודות ואמרה:\n"אוף, לא קניתי שום דבר!"'}, {'id': 'egypt-statue', 'title': 'מצרים – פסל עתיק', 'image': '4.png', 'text': 'כשטיילה סבתא במצרים, ניגש אליה מוכר חשאי בשוק.\n"לך יש מזל," הוא לחש לה. "יש לי פסל עתיק נדיר, אבל אסור למכור אותו בגלוי."\n\nסבתא התלהבה, שילמה הרבה כסף, ועטפה את הפסל בסוודר עבה כדי שלא יישבר.\nכשהראתה אותו לשאר המשפחה, מירב ואבר אמרו מיד:\n"אימא, זה לא עתיק — זה יציקה מפעלית!"\n\nסבתא הביטה מקרוב, ראתה בבירור את סימן היציקה, ואז אמרה בחיוך:\n"נו טוב… לפחות הוא חדש – לא צריך לנקות ממנו אבק של שלושת אלפים שנה!"'}, {'id': 'dishwasher', 'title': 'המדיח המקולקל', 'image': '5.png', 'text': 'לסבתא היה מדיח כלים ישן מאוד, וכל פעם שהדליקה אותו — החשמל קפץ.\nאבא הציע לקנות מדיח חדש, אבל סבתא סירבה: "הוא עוד יעבוד!"\n\nאחרי כמה שנים, כשאבא ואמא קנו מדיח חדש — הם נתנו לה את הישן שלהם.\nאבל כשהגיע הזמן להשתמש בו, כולם ראו שסבתא עדיין לא חיברה אותו.\n\n"למה?" שאלו.\n"אני שומרת את המדיח התקין לדירה שקניתי," אמרה.\n"והמדיח המקולקל? אולי הוא עוד יתוקן…"\n\nובאמת — אחרי כמה שבועות, טכנאי הצליח להפעיל את המדיח הישן! (לפחות בינתיים…)'}, {'id': 'red-sweater', 'title': 'הסוודר האדום', 'image': '6.png', 'text': 'סבתא קנתה סוודר אדום עם קריסטלים מיוחדים בארצות הברית.\nהוא היה יקר ומרשים — והיא שמרה אותו לאירוע מיוחד.\n\nבכל פעם שהיה אירוע, סבתא רצתה ללבוש אותו — אבל תמיד היה לה תירוץ:\n"עכשיו קיץ — חם מדי לסוודר."\n"זה לא מתאים לשמלה."\n"עדיף לשמור לפעם אחרת…"\n\nוככה עברו שנים — והסוודר האדום נשאר בארון, עטוף, מחכה…\nועד היום, אף אחד לא ראה את סבתא לובשת אותו!'}, {'id': 'grandma-names', 'title': 'סבתא ממציאה', 'image': '7.png', 'text': 'באחד הטיולים בטבע, סבתא הובילה אותנו בין פרחים.\nלכל פרח היה לה שם משלו:\n"זה נר הלילה," "זו חרגילית," "וזו שמרית מצויה!"\n\nחשבנו שסבתא ממש מומחית בצמחים — עד שפגשנו את המדריכה.\n\n"זה בכלל חמציץ," היא אמרה. "וזו חרצית עטורה…"\n\nואז הבנו — סבתא פשוט ממציאה שמות!'}];
+  let index = 0;
+  let isFlipping = false;
+
+  const book = document.getElementById('book');
+  const btnPrev = document.getElementById('prev');
+  const btnNext = document.getElementById('next');
+
+  function createPageContent(page, isCover = false) {
+    if (isCover) {
+      return `
+        <div class="page-container">
+          <div class="page-content">
+            <div class="spine" aria-hidden="true"></div>
+            <div class="left-page"></div>
+            <div class="right-page cover-page">
+              <div class="page-text-container" dir="rtl">
+                <img src="${page.image}" alt="${page.title}" class="cover-image" />
+                <h2>סיפורי סבתא טובה</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      return `
+        <div class="page-container">
+          <div class="page-content">
+            <div class="spine" aria-hidden="true"></div>
+            <div class="left-page">
+              <div class="page-image-container">
+                <img src="${page.image}" alt="${page.title}" />
+              </div>
+            </div>
+            <div class="right-page">
+              <div class="page-text-container" dir="rtl">
+                <h2>${page.title}</h2>
+                <p>${page.text || ''}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function render() {
+    const page = PAGES[index];
+    const isCover = page.id === 'cover';
+    document.body.classList.toggle('cover', isCover);
+
+    book.innerHTML = `
+      <section class="spread">
+        ${createPageContent(page, isCover)}
+      </section>
+    `;
+
+    // Update buttons
+    btnPrev.disabled = index === 0 || isFlipping;
+    btnNext.disabled = index === PAGES.length - 1 || isFlipping;
+  }
+  
+  function flipPage(direction) {
+    if (isFlipping) return;
+    
+    isFlipping = true;
+    const spread = book.querySelector('.spread');
+    
+    // Add flip class
+    spread.classList.add(direction === 'next' ? 'flipping-next' : 'flipping-prev');
+    
+    // Update buttons during animation
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+    
+    setTimeout(() => {
+      // Update content after half the animation
+      render();
+      
+      // Remove flip class after a short delay
+      setTimeout(() => {
+        spread.classList.remove('flipping-next', 'flipping-prev');
+        isFlipping = false;
+        
+        // Re-enable buttons
+        btnPrev.disabled = index === 0;
+        btnNext.disabled = index === PAGES.length - 1;
+      }, 50);
+    }, 400); // Half of the 0.8s animation
+  }
+
+  btnPrev.addEventListener('click', () => {
+    if (index > 0 && !isFlipping) { 
+      index--; 
+      flipPage('prev');
+    }
+  });
+  
+  btnNext.addEventListener('click', () => {
+    if (index < PAGES.length - 1 && !isFlipping) { 
+      index++; 
+      flipPage('next');
+    }
+  });
+
+  // Keyboard nav: arrows
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' && !isFlipping) btnNext.click();
+    if (e.key === 'ArrowRight' && !isFlipping) btnPrev.click();
+  });
+
+  render();
+</script>
+</body>
+</html>
